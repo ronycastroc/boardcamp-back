@@ -12,6 +12,7 @@ const createCategory = async (req, res) => {
 
     if(validation.error) {
         const error = validation.error.details.map(value => value.message);
+        
         return res.status(400).send(error);
     }
 
