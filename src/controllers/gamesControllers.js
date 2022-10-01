@@ -49,15 +49,22 @@ const createGame = async (req, res) => {
 const readGames = async (req, res) => {
     const { name } = req.query;
 
-    if(name) {
-        const gamesQuery = await connection.query('SELECT games.id, games.name, games.image, games."stockTotal", games."pricePerDay", categories.id AS "categoryId", categories.name AS "categoryName" FROM games JOIN categories ON games."categoryId" = categories.id WHERE LOWER(games.name) LIKE ($1);', [`%${name.toLowerCase()}%`]);
-
-        return res.send(gamesQuery.rows);
+    try {
+        if(name) {
+            const gamesQuery = await connection.query('SELECT games.id, games.name, games.image, games."stockTotal", games."pricePerDay", categories.id AS "categoryId", categories.name AS "categoryName" FROM games JOIN categories ON games."categoryId" = categories.id WHERE LOWER(games.name) LIKE ($1);', [`%${name.toLowerCase()}%`]);
+    
+            return res.send(gamesQuery.rows);
+        }
+    
+        const games = await connection.query('SELECT games.id, games.name, games.image, games."stockTotal", games."pricePerDay", categories.id AS "categoryId", categories.name AS "categoryName" FROM games JOIN categories ON games."categoryId" = categories.id;');    
+    
+        res.send(games.rows);
+        
+    } catch (error) {
+        res.status(500).send(error.message);
     }
 
-    const games = await connection.query('SELECT games.id, games.name, games.image, games."stockTotal", games."pricePerDay", categories.id AS "categoryId", categories.name AS "categoryName" FROM games JOIN categories ON games."categoryId" = categories.id;');    
-
-    res.send(games.rows);
+    
 };
 
 export { createGame, readGames };

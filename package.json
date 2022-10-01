@@ -5,13 +5,14 @@
   "description": "",
   "main": "src/app.js",
   "scripts": {
-    "start": "node -r dotenv/config src/app.js"
+    "start": "nodemon -r dotenv/config src/app.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "Rony Castro",
   "license": "ISC",
   "dependencies": {
     "cors": "^2.8.5",
+    "dayjs": "^1.11.5",
     "dotenv": "^16.0.2",
     "express": "^4.18.1",
     "joi": "^17.6.2",
