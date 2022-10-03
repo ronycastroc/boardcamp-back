@@ -61,13 +61,13 @@ const createRentalsFinished = async (req, res) => {
     try {
         const rentals = (await connection.query('SELECT * FROM rentals;')).rows;
 
-        const isRent = rentals.find(value => value.id === id);
+        const isRent = rentals.find(value => value.id === Number(id));
 
         if(!isRent) {
             return res.sendStatus(404);
         }
 
-        const isFinished = rentals.find(value => value.id === id && value.returnDate === null);
+        const isFinished = rentals.find(value => value.id === Number(id) && value.returnDate === null);
 
         if(!isFinished) {
             return res.sendStatus(400);
@@ -89,7 +89,7 @@ const createRentalsFinished = async (req, res) => {
                 return res.sendStatus(200);
             }
 
-        await connection.query('UPDATE rentals SET "returnDate"=$1 WHERE id=$2;', [date, id]);
+        await connection.query('UPDATE rentals SET "returnDate"=$1 WHERE id=$2;', [date, Number(id)]);
 
         res.sendStatus(200);
 
@@ -114,11 +114,7 @@ const readRentals = async (req, res) => {
             return res.send(rentals.rows);
         }
 
-        const rentals = await connection.query('SELECT rentals.*, customers.name AS "customerName", games.name AS "gameName", categories.name AS "categoryName" FROM rentals JOIN customers ON rentals."customerId" = customers.id JOIN games ON rentals."gameId" = games.id JOIN categories ON games."categoryId" = categories.id;');
-
-       
-        
-        console.log(rentals.rows[0].daysRented)
+        const rentals = await connection.query('SELECT rentals.*, customers.name AS "customerName", games.name AS "gameName", categories.name AS "categoryName" FROM rentals JOIN customers ON rentals."customerId" = customers.id JOIN games ON rentals."gameId" = games.id JOIN categories ON games."categoryId" = categories.id;');   
         
         res.send(rentals.rows);
 
@@ -127,4 +123,31 @@ const readRentals = async (req, res) => {
     }   
 };
 
-export { createRentals, readRentals, createRentalsFinished };
+const deleteRentals = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const rentals = (await connection.query('SELECT * FROM rentals;')).rows;
+
+        const isRent = rentals.find(value => value.id === Number(id));
+
+        if(!isRent) {
+            return res.sendStatus(404);
+        }
+
+        const notFinished = rentals.find(value => value.id === Number(id) && value.returnDate === null);
+
+        if(notFinished) {
+            return res.sendStatus(400);
+        }
+
+        await connection.query('DELETE FROM rentals WHERE id=$1;', [Number(id)]);
+
+        res.sendStatus(200);
+
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+}
+
+export { createRentals, readRentals, createRentalsFinished, deleteRentals };
