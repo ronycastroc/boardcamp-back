@@ -1,27 +1,12 @@
 import { connection } from "../database/db.js";
-import joi from "joi";
 import dayjs from "dayjs";
 
 const date = dayjs().locale('pt-br').format('YYYY-MM-DD');
 
-const rentalsSchema = joi.object({
-    customerId: joi.number().required().greater(0),
-    gameId: joi.number().required().greater(0),
-    daysRented: joi.number().required().greater(0)
-});
-
 const createRentals = async (req, res) => {
     const { customerId, gameId, daysRented } = req.body;
     const returnDate = null;
-    const delayFee = null;
-
-    const validation = rentalsSchema.validate(req.body, { abortEarly: false });
-
-    if(validation.error) {
-        const error = validation.error.details.map(value => value.message);
-
-        return res.status(400).send(error);
-    }
+    const delayFee = null;    
 
     try {
         const customers = (await connection.query('SELECT * FROM customers;')).rows;

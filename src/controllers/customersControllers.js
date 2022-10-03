@@ -1,23 +1,7 @@
 import { connection } from "../database/db.js";
-import joi from "joi";
-
-const customerSchema = joi.object({
-    name: joi.string().required().min(1),
-    phone: joi.string().required().min(10).max(11),
-    cpf: joi.string().required().min(11).max(11),
-    birthday: joi.date().required()
-});
 
 const createCustomer = async (req, res) => {
-    const { name, phone, cpf, birthday } = req.body;
-
-    const validation = customerSchema.validate(req.body, { abortEarly: false });
-
-    if(validation.error) {
-        const error = validation.error.details.map(value => value.message);
-
-        return res.status(400).send(error);
-    }
+    const { name, phone, cpf, birthday } = req.body;    
 
     try {
         const customers = (await connection.query('SELECT * FROM customers;')).rows;
@@ -76,14 +60,6 @@ const readCustomerId = async (req, res) => {
 const updateCustomer = async (req, res) => {    
     const { name, phone, cpf, birthday } = req.body;
     const { id } = req.params;
-
-    const validation = customerSchema.validate(req.body, { abortEarly: false });
-
-    if(validation.error) {
-        const error = validation.error.details.map(value => value.message);
-
-        return res.status(400).send(error);
-    }
 
     try {
         const customer = await connection.query('SELECT * FROM customers WHERE id=$1;', [id]);

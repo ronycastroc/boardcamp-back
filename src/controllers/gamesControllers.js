@@ -1,24 +1,7 @@
 import { connection } from "../database/db.js";
-import joi from "joi";
-
-const gameSchema = joi.object({
-    name: joi.string().required().min(2),
-    image: joi.string().required(),
-    stockTotal: joi.number().required().greater(0),
-    categoryId: joi.number().required().greater(0),
-    pricePerDay: joi.number().required().greater(0)
-});
 
 const createGame = async (req, res) => {
-    const { name, image, stockTotal, categoryId, pricePerDay } = req.body;
-
-    const validation = gameSchema.validate(req.body, { abortEarly: false });
-
-    if(validation.error) {
-        const error = validation.error.details.map(value => value.message);
-
-        return res.status(400).send(error);
-    }
+    const { name, image, stockTotal, categoryId, pricePerDay } = req.body;    
 
     try {
         const categories = (await connection.query('SELECT * FROM categories;')).rows;
