@@ -44,7 +44,7 @@ const readCustomerId = async (req, res) => {
     const { id } = req.params;
 
     try {
-        const customer = await connection.query('SELECT * FROM customers WHERE id=$1;', [id]);
+        const customer = await connection.query('SELECT * FROM customers WHERE id=$1;', [Number(id)]);
 
         if(!customer.rows[0]) {
             return res.sendStatus(404);
@@ -61,14 +61,16 @@ const updateCustomer = async (req, res) => {
     const { name, phone, cpf, birthday } = req.body;
     const { id } = req.params;
 
-    try {
-        const customer = await connection.query('SELECT * FROM customers WHERE id=$1;', [id]);
+    try {        
+        const customers = (await connection.query('SELECT * FROM customers;')).rows;
 
-        if(!customer.rows[0]) {
-            return res.sendStatus(404);
+        const isCustomer = customers.find(value => value.cpf === cpf);
+
+        if(isCustomer) {
+            return res.sendStatus(409);
         }
 
-        await connection.query('UPDATE customers SET name=$1, phone=$2, cpf=$3, birthday=$4 WHERE id=$5;', [name, phone, cpf, birthday, id]);
+        await connection.query('UPDATE customers SET name=$1, phone=$2, cpf=$3, birthday=$4 WHERE id=$5;', [name, phone, cpf, birthday, Number(id)]);
 
         res.sendStatus(200);
 
